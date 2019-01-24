@@ -6,6 +6,7 @@ public class SpawnController : MonoBehaviour
 {
     public bool goLeft = false;
     public bool goRight = false;
+    public bool both = false;
     public List<GameObject> items = new List<GameObject>();
     public List<Spawner> spawnersLeft = new List<Spawner>();
     public List<Spawner> spawnersRight = new List<Spawner>();
@@ -17,7 +18,13 @@ public class SpawnController : MonoBehaviour
 
         int direction = Random.Range(0, 2);
 
-        if (direction > 0)
+        if (both)
+        {
+            goLeft = true;
+            goRight = true;
+        }
+
+        else if (direction > 0)
         {
             goLeft = false;
             goRight = true;

@@ -48,8 +48,9 @@ public class Mover : MonoBehaviour
             {
                 //Debug.Log("Enter: Parent to me.");
                 other.transform.parent = this.transform;
-
-                other.GetComponent<PlayerController>().parentedToObject = true;
+                PlayerController pc = other.GetComponent<PlayerController>();
+                pc.enableAngleCheckOnMove = true;
+                pc.parentedToObject = true;
                     
             }
 
@@ -70,8 +71,9 @@ public class Mover : MonoBehaviour
                 //Debug.Log("Exit.");
 
                 other.transform.parent = null;
-
-                other.GetComponent<PlayerController>().parentedToObject = false;
+                PlayerController pc = other.GetComponent<PlayerController>();
+                pc.enableAngleCheckOnMove = false;
+                pc.parentedToObject = false;
 
             }
         }

@@ -12,6 +12,9 @@ public class PlayerController : MonoBehaviour
     public bool isMoving = false;
     public bool isJumping = false;
     public bool jumpStart = false;
+    public bool enableAngleCheckOnMove = false;
+    public float angleCheck = 1;
+    public float angleCheckDist = 0.5f;
     public ParticleSystem particle = null;
     public GameObject chick = null;
     private Renderer renderer = null;
@@ -51,16 +54,92 @@ public class PlayerController : MonoBehaviour
     {
         if (isIdle)
         {
-            if (Input.GetKeyDown (KeyCode.UpArrow) || Input.GetKeyDown(KeyCode.DownArrow) || Input.GetKeyDown(KeyCode.LeftArrow) || Input.GetKeyDown(KeyCode.RightArrow))
+            if (Input.GetKey(KeyCode.UpArrow))
             {
-                CheckIfCanMove ();
+                CheckIfIdle(270, 0, 0);
+            }
 
-                PlayAudioClip(audioIdle1);
+            if (Input.GetKey(KeyCode.DownArrow))
+            {
+                CheckIfIdle(270, 180, 0);
+            }
+
+            if (Input.GetKey(KeyCode.LeftArrow))
+            {
+                CheckIfIdle(270, -90, 0);
+            }
+
+            if (Input.GetKey(KeyCode.RightArrow))
+            {
+                CheckIfIdle(270, 90, 0);
             }
         }
     }
 
-    void CheckIfCanMove()
+    void CheckIfIdle (float x, float y, float z)
+    {
+        chick.transform.rotation = Quaternion.Euler(x, y, z);
+
+        if (enableAngleCheckOnMove)
+        {
+            CheckIfCanMoveAngles();
+        }
+        else
+        {
+            CheckIfCanMoveSingleRay();
+        }
+
+        int a = Random.Range(0, 12);
+        if (a < 4)
+        {
+            PlayAudioClip(audioIdle1);
+        }
+
+    }
+
+    void CheckIfCanMoveAngles()
+    {
+        RaycastHit hit;
+        RaycastHit hitleft;
+        RaycastHit hitright;
+
+        Physics.Raycast(this.transform.position, -chick.transform.up, out hit, colliderDistCheck);
+        Physics.Raycast(this.transform.position, -chick.transform.up + new Vector3 (angleCheck, 0, 0), out hitleft, colliderDistCheck + angleCheckDist);
+        Physics.Raycast(this.transform.position, -chick.transform.up + new Vector3(-angleCheck, 0, 0), out hitright, colliderDistCheck + angleCheckDist);
+
+        Debug.DrawRay(this.transform.position, -chick.transform.up * colliderDistCheck, Color.red, 2);
+        Debug.DrawRay(this.transform.position, (-chick.transform.up + new Vector3 (angleCheck, 0, 0)) * (colliderDistCheck + angleCheckDist), Color.green, 2);
+        Debug.DrawRay(this.transform.position, (-chick.transform.up + new Vector3(-angleCheck, 0, 0)) * (colliderDistCheck + angleCheckDist), Color.blue, 2);
+
+        if (hit.collider == null && hitleft.collider == null && hitright.collider == null)
+        {
+            SetMove();
+        }
+        else
+        {
+            if (hit.collider != null && hit.collider.tag == "collider")
+            {
+                Debug.Log("hit something with collider tage");
+                isIdle = true;
+            }
+            else if (hitleft.collider != null && hitleft.collider.tag == "collider")
+            {
+                Debug.Log("hit left something with collider tage");
+                isIdle = true;
+            }
+            else if (hitright.collider != null && hitright.collider.tag == "collider")
+            {
+                Debug.Log("hit right something with collider tage");
+                isIdle = true;
+            }
+            else
+            {
+                SetMove();
+            }
+        }
+    }
+
+    void CheckIfCanMoveSingleRay()
     {
         RaycastHit hit;
             
@@ -76,7 +155,8 @@ public class PlayerController : MonoBehaviour
         {
             if (hit.collider.tag == "collider")
             {
-                //Debug.Log("Hit something with collider tag.");
+                    //Debug.Log("Hit something with collider tag.");
+                    isIdle = true;
             }
             else
             {
@@ -94,6 +174,7 @@ public class PlayerController : MonoBehaviour
         jumpStart = true;
     }
 
+    
     void CanMove()
     {
         if (isMoving)
@@ -139,7 +220,11 @@ public class PlayerController : MonoBehaviour
         isJumping = false;
         isIdle = true;
 
-        PlayAudioClip(audioIdle2);
+        int a = Random.Range(1, 12);
+        if (a < 4)
+        {
+            PlayAudioClip(audioIdle2);
+        }
     }
 
     void SetMoveForwardState()
